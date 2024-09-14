@@ -1,0 +1,5 @@
+__pycache__
+venv
+.history
+.vscode
+blockchain.log

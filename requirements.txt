@@ -1,0 +1,6 @@
+Flask==2.0.1
+requests==2.26.0
+mnemonic==0.20
+cryptography==3.4.7
+flet==0.4.0
+pyperclip==1.8.2
