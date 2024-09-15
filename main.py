@@ -4,7 +4,9 @@ from time import time
 from uuid import uuid4
 from flask import Flask, jsonify, request
 
-from api import app
+from api import BlockchainAPI
+
 # TODO: разобраться с отрицательным балансом, потом доделать gui
 if __name__ == '__main__':
-   app.run(host='0.0.0.0', port=5000)
+   blockchain_api = BlockchainAPI()
+   blockchain_api.run()

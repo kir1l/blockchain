@@ -5,6 +5,7 @@ from views.import_page import ImportWalletPage
 from views.create_page import CreateWalletPage
 from views.main_wallet_page import MainWalletPage
 from views.wallet_send import WalletSendPage
+from views.wallet_receive import WalletReceivePage
 
 from wallet import Wallet
 
@@ -18,7 +19,9 @@ class MainApp:
         self.create_page = CreateWalletPage(self.page)
         self.main_wallet_page = MainWalletPage(self.page)
         self.wallet_send_page = WalletSendPage(self.page)
+        self.wallet_receive_page = WalletReceivePage(self.page)
 
+        # Main page settings
         self.window_width = 500
         self.window_height = 700
         self.theme_mode = flet.ThemeMode.DARK
@@ -50,6 +53,7 @@ class MainApp:
             '/createWallet': self.create_page,
             '/wallet': self.main_wallet_page,
             '/wallet/send': self.wallet_send_page,
+            '/wallet/receive': self.wallet_receive_page,
         }.get(self.page.route, self.open_page)
 
         if self.page.route == "/wallet" or self.page.route == "/wallet/send":

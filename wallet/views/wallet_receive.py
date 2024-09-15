@@ -30,3 +30,10 @@ class WalletReceivePage(Container):
            margin=0,
            padding=0
        )
+       self.address = Container(
+         content=Text('Loading', size=26)
+       )
+       
+       self.last_transactions = Container(
+         content=Text('Loading', size=26)
+       )
