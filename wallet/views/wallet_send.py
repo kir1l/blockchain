@@ -7,7 +7,7 @@ class WalletSendPage(Container):
    def __init__(self, page: flet.Page):
        super().__init__()
        self.page = page
-       self.wallet = None | Wallet
+       self.wallet = None
        self.init_content()
 
    def init_content(self):
@@ -76,6 +76,7 @@ class WalletSendPage(Container):
 
    def update_dynamic_info(self, wallet: Wallet):
        self.wallet = wallet
+
    def send_transaction(self, e):
        recipient = self.recipient_address.value
        amount = self.amount_input.value

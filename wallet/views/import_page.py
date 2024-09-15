@@ -22,12 +22,6 @@ class ImportWalletPage(Container):
             expand=True
         )
 
-        self.address_input = TextField(
-            label="Address",
-            width=400,
-            border_color=flet.colors.WHITE
-        )
-
         self.seed_phrase_input = TextField(
             label="Seed Phrase",
             multiline=True,
@@ -50,9 +44,8 @@ class ImportWalletPage(Container):
             [
                 self.header,
                 Container(padding=flet.padding.only(top=50)),
-                Text("Enter your wallet address and seed phrase", size=18),
+                Text("Enter your seed phrase", size=18),
                 self.error_message,
-                self.address_input,
                 self.seed_phrase_input,
                 self.import_button
             ],
@@ -64,19 +57,18 @@ class ImportWalletPage(Container):
 
         self.content = content
         self.padding = 20
+
     def import_wallet(self, e):
-        address = self.address_input.value
         seed_phrase = self.seed_phrase_input.value
         
-        if seed_phrase and address:
-             wallet = Wallet.from_seed_phrase(address, seed_phrase)
-             if wallet:
-               wallet.save_wallet_local_data()
-               self.page.go("/wallet")
-               # Navigate to wallet page or show success message
-             else:
-               self.error_message.value = "Invalid seed phrase or address"
-               self.page.update()
+        if seed_phrase:
+            try:
+                wallet = Wallet.from_seed_phrase(seed_phrase)
+                wallet.save_wallet_local_data()
+                self.page.go("/wallet")
+            except Exception as ex:
+                self.error_message.value = str(ex)
+                self.page.update()
         else:
-            self.error_message.value = "Please enter address and seed phrase"
+            self.error_message.value = "Please enter seed phrase"
             self.page.update()

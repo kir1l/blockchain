@@ -1,9 +1,7 @@
 import flet
 from flet import *
 import pyperclip
-
 from wallet import Wallet
-from views.main_wallet_page import MainWalletPage
 
 class CreateWalletPage(Container):
     def __init__(self, page: flet.Page):
@@ -65,65 +63,69 @@ class CreateWalletPage(Container):
         self.page.update()
 
     def create_wallet(self, _):
-        self.wallet = Wallet()
-        wallet_address = Container(
-               content=Text(
-               self.wallet.address,
-               style=TextStyle(weight="bold"),
-               text_align="center",
-               no_wrap=True,
-               overflow="ellipsis",
-               size=18,
-            ),
-            on_click=lambda e: self.copy_with_alert(self.wallet.address, "Wallet address copied!"),
-            border=border.only(bottom=border.BorderSide(1, colors.WHITE)),
-            padding=padding.only(bottom=3),
-         )
+        try:
+            self.wallet = Wallet.create_wallet()
 
-        seed_phrase_words = [
-            Container(
-                content=Text(word, size=18, text_align="center"),
-                border=border.all(1, colors.GREY_400),
-                border_radius=5,
-                padding=5,
-                on_click=lambda e: self.copy_with_alert(self.wallet.seed_phrase, "Seed phrase copied!"),
+            wallet_address = Container(
+                   content=Text(
+                   self.wallet.address,
+                   style=TextStyle(weight="bold"),
+                   text_align="center",
+                   no_wrap=True,
+                   overflow="ellipsis",
+                   size=18,
+                ),
+                on_click=lambda e: self.copy_with_alert(self.wallet.address, "Wallet address copied!"),
+                border=border.only(bottom=border.BorderSide(1, colors.WHITE)),
+                padding=padding.only(bottom=3),
+             )
+
+            seed_phrase_words = [
+                Container(
+                    content=Text(word, size=18, text_align="center"),
+                    border=border.all(1, colors.GREY_400),
+                    border_radius=5,
+                    padding=5,
+                    on_click=lambda e: self.copy_with_alert(self.wallet.seed_phrase, "Seed phrase copied!"),
+                )
+                for word in self.wallet.seed_phrase.split()
+            ]
+
+            seed_phrase_container = Container(
+                content=Row(seed_phrase_words, wrap=True, alignment=MainAxisAlignment.CENTER),
+                margin=10
             )
-            for word in self.wallet.seed_phrase.split()
-        ]
 
-        seed_phrase_container = Container(
-            content=Row(seed_phrase_words, wrap=True, alignment=MainAxisAlignment.CENTER),
-            margin=10
-        )
+            go_to_wallet_button = Container(
+                content=ElevatedButton(
+                    text="Go to Wallet",
+                    on_click=self.go_to_wallet,
+                    height=50,
+                    width=200
+                ),
+                margin=10,
+                expand=True,
+                padding=padding.only(top=20),
+                alignment=alignment.center
+            )
 
-        go_to_wallet_button = Container(
-            content=ElevatedButton(
-                text="Go to Wallet",
-                on_click=self.go_to_wallet,
-                height=50,
-                width=200
-            ),
-            margin=10,
-            expand=True,
-            padding=padding.only(top=20),
-            alignment=alignment.center
-        )
+            self.wallet_info.controls = [
+                Text("New wallet has been created!", size=22, text_align="center"),
+                Container(padding=flet.padding.only(top=30)),
+                Text("Your Wallet Address:", size=16, text_align="center"),
+                wallet_address,
+                Container(padding=flet.padding.only(top=30)),
+                Text("Seed Phrase (Keep this safe!):", size=16, text_align="center"),
+                seed_phrase_container,
+                go_to_wallet_button
+            ]
+            self.create_wallet_button.visible = False
+            self.wallet_info.visible = True
 
-        self.wallet_info.controls = [
-            Text("New wallet has been created!", size=22, text_align="center"),
-            Container(padding=flet.padding.only(top=30)),
-            Text("Your Wallet Address:", size=16, text_align="center"),
-            wallet_address,
-            Container(padding=flet.padding.only(top=30)),
-            Text("Seed Phrase (Keep this safe!):", size=16, text_align="center"),
-            seed_phrase_container,
-            go_to_wallet_button
-        ]
-        self.create_wallet_button.visible = False
-        self.wallet_info.visible = True
+            self.page.update()
+        except Exception as e:
+            print(f"Failed to create wallet: {e}")
 
-        self.wallet.save_wallet_local_data()
-        self.page.update()
     def copy_with_alert(self, text, alert_message):
         pyperclip.copy(text)
         self.page.snack_bar = SnackBar(content=Text(alert_message))
@@ -131,4 +133,5 @@ class CreateWalletPage(Container):
         self.page.update()
 
     def go_to_wallet(self, e):
+       self.wallet.save_wallet_local_data()
        self.page.go("/wallet")

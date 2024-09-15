@@ -7,7 +7,7 @@ class WalletReceivePage(Container):
    def __init__(self, page: flet.Page):
        super().__init__()
        self.page = page
-       self.wallet = None | Wallet
+       self.wallet = None
        self.init_content()
 
    def init_content(self):

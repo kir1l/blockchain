@@ -11,9 +11,7 @@ class BlockchainAPI:
         self.setup_routes()
 
     def setup_routes(self):
-        self.app.route('/wallet/new', methods=['GET'])(self.new_wallet)
-        self.app.route('/wallet/check', methods=['GET'])(self.check_address)
-        self.app.route('/wallet/import', methods=['GET'])(self.import_wallet)
+        self.app.route('/wallet/new', methods=['POST'])(self.new_wallet)
         self.app.route('/wallet/balance', methods=['GET'])(self.get_balance)
         self.app.route('/mine', methods=['GET'])(self.mine)
         self.app.route('/chain', methods=['GET'])(self.full_chain)
@@ -22,38 +20,18 @@ class BlockchainAPI:
         self.app.route('/nodes/resolve', methods=['GET'])(self.consensus)
 
     def new_wallet(self):
-        wallet_data = self.blockchain.create_wallet()
+        values = request.get_json()
+        address = values.get('address')
+        public_key = values.get('public_key')
+
+        if not address or not public_key:
+            blockchain_logger.warning(f"Attempt to create wallet with missing address or public key")
+            return 'Missing address or public key', 400
+
+        wallet_data = self.blockchain.create_wallet(address, public_key)
         blockchain_logger.info(f"Created new wallet with address: {wallet_data['address']}")
         return jsonify(wallet_data), 201
 
-    def check_address(self):
-        address = request.args.get('address')
-        if address:
-            wallet = self.blockchain.find_wallet(address)
-            if wallet:
-                blockchain_logger.info(f"Address {address} exists")
-                return jsonify(True), 200
-            else:
-                blockchain_logger.info(f"Address {address} does not exist")
-                return jsonify(False), 200
-
-    def import_wallet(self):
-        values = request.get_json()
-        seed_phrase = values.get('seed_phrase')
-        address = values.get('address')
-
-        if not seed_phrase or not address:
-            blockchain_logger.warning(f"Attempt to import wallet with missing seed phrase or address")
-            return 'Missing seed phrase or address', 400
-
-        wallet_data = self.blockchain.decrypt_wallet(address, seed_phrase)
-
-        if wallet_data:
-            blockchain_logger.info(f"Imported wallet with address: {address}")
-            return jsonify(wallet_data), 200
-        else:
-            blockchain_logger.error(f"Failed to import wallet with address: {address}")
-            return 'Wallet not found or incorrect seed phrase', 400
 
     def get_balance(self):
         values = request.args
@@ -99,6 +77,8 @@ class BlockchainAPI:
             'chain': [block for block in self.blockchain.chain],
             'length': len(self.blockchain.chain),
         }
+
+        blockchain_logger.info('Get full chain')
         return jsonify(response), 200
 
     def new_transaction(self):
@@ -111,7 +91,7 @@ class BlockchainAPI:
             return 'Sender not found', 400
 
         signature = bytes.fromhex(values['signature'])
-        success = self.blockchain.new_transaction(values['sender'], values['recipient'], values['amount'], signature)
+        success = self.blockchain.create_transaction(values['sender'], values['recipient'], values['amount'], signature)
 
         if success:
             response = {'message': 'Transaction will be added to the next block'}
@@ -157,4 +137,3 @@ class BlockchainAPI:
 
     def run(self, host='0.0.0.0', port=5000):
         self.app.run(host=host, port=port)
-

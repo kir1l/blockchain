@@ -7,7 +7,7 @@ class Blockchain:
     def __init__(self):
         self.chain = []
         self.wallet_manager = WalletManager()
-        self.transaction_manager = TransactionManager(self.wallet_manager)
+        self.transaction_manager = TransactionManager()
         self.block_manager = BlockManager()
         self.chain_validator = ChainValidator(self.block_manager, self.transaction_manager)
         
@@ -15,14 +15,38 @@ class Blockchain:
         genesis_block = self.block_manager.create_block([], "0")
         self.chain.append(genesis_block)
 
-    def create_wallet(self):
-        return self.wallet_manager.create_wallet()
+    def create_wallet(self, address, public_key):
+        wallet_data = self.wallet_manager.create_wallet(address, public_key)
+        
+        # Добавление транзакции создания кошелька
+        self.transaction_manager.create_transaction("0", address, 0)
+        
+        # Автоматический майнинг блока после создания кошелька
+        self.mine_block()
+        
+        return wallet_data
 
     def get_balance(self, wallet_address):
-        return self.wallet_manager.get_balance(wallet_address)
+        balance = 0
+        for block in self.chain:
+            for transaction in block['transactions']:
+                if transaction['sender'] == wallet_address:
+                    balance -= transaction['amount']
+                if transaction['recipient'] == wallet_address:
+                    balance += transaction['amount']
 
-    def create_transaction(self, sender, recipient, amount):
-        return self.transaction_manager.create_transaction(sender, recipient, amount)
+        return balance
+
+    def create_transaction(self, sender, recipient, amount, private_key, public_key_pem):
+        transaction = {
+            'sender': sender,
+            'recipient': recipient,
+            'amount': amount
+        }
+        if self.transaction_manager.verify_transaction(transaction, public_key_pem):
+            self.transaction_manager.pending_transactions.append(transaction)
+            return True
+        return False
 
     def mine_block(self):
         last_block = self.chain[-1]
@@ -32,11 +56,6 @@ class Blockchain:
         )
         mined_block = self.block_manager.mine_block(new_block)
         self.chain.append(mined_block)
-        
-        # Update balances
-        for transaction in mined_block['transactions']:
-            self.wallet_manager.update_balance(transaction['sender'], -transaction['amount'])
-            self.wallet_manager.update_balance(transaction['recipient'], transaction['amount'])
         
         self.transaction_manager.clear_pending_transactions()
         return mined_block

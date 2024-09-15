@@ -1,18 +1,17 @@
 import flet
 from flet import *
-
 from wallet import Wallet
 import threading
 import time
-
 
 class MainWalletPage(Container):
    def __init__(self, page: flet.Page):
        super().__init__()
        self.page = page
        self.wallet = None
-       self.update_thread = None
+       self.cached_balance = None
        self.init_content()
+       print(self.page)
 
    def init_content(self):
        self.header = Container(
@@ -148,24 +147,22 @@ class MainWalletPage(Container):
 
    def update_dynamic_info(self, wallet: Wallet):
        self.wallet = wallet
+       self.cached_balance = self.wallet.get_balance()
 
-       self.total_balance.value = f"${self.wallet.get_balance()}"
-       self.bitplace_balance.value = f"${self.wallet.get_balance()}"
+       self.total_balance.value = f"${self.cached_balance}"
+       self.bitplace_balance.value = f"${self.cached_balance}"
        self.wallet_name.value =  f'Main Wallet ...{self.wallet.address[-5:]}'
+       
+       print(f'Updating dynamic data {self.page}')
+       self.page.update()
 
-       if not self.update_thread or not self.update_thread.is_alive():
-            self.update_thread = threading.Thread(target=self.update_balance_periodically)
-            self.update_thread.daemon = True
-            self.update_thread.start()
-
-   def update_balance_periodically(self):
-        while self.wallet:
-            if self.wallet:
-                new_balance = self.wallet.get_balance()
-                self.total_balance.value = f"${new_balance}"
-                self.bitplace_balance.value = f"${new_balance}"
-                self.page.update()
-            time.sleep(10)  # Обновление каждые 10 секунд
+   def update_balance(self):
+       new_balance = self.wallet.get_balance()
+       if new_balance != self.cached_balance:
+           self.cached_balance = new_balance
+           self.total_balance.value = f"${new_balance}"
+           self.bitplace_balance.value = f"${new_balance}"
+           self.page.update()
 
    def logout(self, e):
        self.wallet.delete_wallet_local_data()
