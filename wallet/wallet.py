@@ -70,7 +70,8 @@ class Wallet:
 
     def send_transaction(self, recipient, amount):
         message = f"{self.address}{recipient}{amount}".encode()
-        signature = self.private_key.sign(message)
+        private_key = SigningKey.from_string(bytes.fromhex(self.private_key), curve=SECP256k1)
+        signature = private_key.sign(message)
 
         response = requests.post('http://localhost:5000/transactions/new', json={
             'sender': self.address,
@@ -106,8 +107,22 @@ class Wallet:
             'public_key': self.public_key,
             'seed_phrase': self.seed_phrase
         }
-        with open('wallet_data.json', 'w') as f:
-            json.dump(data, f)
+        try:
+            with open('wallet_data.json', 'w') as f:
+                json.dump(data, f, indent=4)
+        except IOError as e:
+            print(f"Error saving wallet data: {e}")
+            print(f"Current working directory: {os.getcwd()}")
+            print(f"Attempting to save in user's home directory...")
+            home_dir = os.path.expanduser("~")
+            file_path = os.path.join(home_dir, 'wallet_data.json')
+            try:
+                with open(file_path, 'w') as f:
+                    json.dump(data, f, indent=4)
+                print(f"Wallet data saved successfully in {file_path}")
+            except IOError as e:
+                print(f"Error saving wallet data in home directory: {e}")
+                print("Please check file permissions and try again.")
 
     @staticmethod
     def delete_wallet_local_data(f=None):

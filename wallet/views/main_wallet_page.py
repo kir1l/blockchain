@@ -11,7 +11,6 @@ class MainWalletPage(Container):
        self.wallet = None
        self.cached_balance = None
        self.init_content()
-       print(self.page)
 
    def init_content(self):
        self.header = Container(
@@ -153,7 +152,6 @@ class MainWalletPage(Container):
        self.bitplace_balance.value = f"${self.cached_balance}"
        self.wallet_name.value =  f'Main Wallet ...{self.wallet.address[-5:]}'
        
-       print(f'Updating dynamic data {self.page}')
        self.page.update()
 
    def update_balance(self):
