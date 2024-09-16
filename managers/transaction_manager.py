@@ -1,59 +1,48 @@
 import json
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
-
-from logger import blockchain_logger
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives import hashes, serialization
 
 class TransactionManager:
-    def __init__(self, wallet_manager):
-        self.wallet_manager = wallet_manager
+    def __init__(self):
         self.pending_transactions = []
-        blockchain_logger.info("TransactionManager initialized")
 
-    def create_transaction(self, sender, recipient, amount, signature=None):
+    def create_transaction(self, sender, recipient, amount, signature=None, public_key=None):
         transaction = {
             'sender': sender,
             'recipient': recipient,
             'amount': amount
         }
-        if sender != "0" and signature:  # Если это не транзакция создания кошелька и есть подпись
+        if sender != "0" and signature and public_key:  # Если это не транзакция создания кошелька и есть подпись и публичный ключ
             transaction['signature'] = signature.hex()
+            transaction['public_key'] = public_key
+            if not self.verify_transaction(transaction):
+                raise ValueError("Invalid transaction signature")
         self.pending_transactions.append(transaction)
-        blockchain_logger.info(f"Transaction created: {transaction}")
         return transaction
 
     def verify_transaction(self, transaction):
         if transaction['sender'] == "0":  # Если это транзакция создания кошелька
-            blockchain_logger.info("Wallet creation transaction verified")
             return True
-        sender = transaction['sender']
-        public_key = self.wallet_manager.wallets[sender]['public_key']
+        public_key = serialization.load_pem_public_key(transaction['public_key'].encode())
         signature = bytes.fromhex(transaction['signature'])
         transaction_copy = transaction.copy()
         del transaction_copy['signature']
+        del transaction_copy['public_key']
         transaction_bytes = json.dumps(transaction_copy, sort_keys=True).encode('utf-8')
         
         try:
             public_key.verify(
                 signature,
                 transaction_bytes,
-                padding.PSS(
-                    mgf=padding.MGF1(hashes.SHA256()),
-                    salt_length=padding.PSS.MAX_LENGTH
-                ),
-                hashes.SHA256()
+                ec.ECDSA(hashes.SHA256())
             )
-            blockchain_logger.info(f"Transaction verified: {transaction}")
             return True
-        except:
-            blockchain_logger.warning(f"Transaction verification failed: {transaction}")
+        except Exception as e:
+            print(f"Transaction verification failed: {e}")
             return False
 
     def get_pending_transactions(self):
-        blockchain_logger.info(f"Retrieved {len(self.pending_transactions)} pending transactions")
         return self.pending_transactions
 
     def clear_pending_transactions(self):
-        num_cleared = len(self.pending_transactions)
         self.pending_transactions = []
-        blockchain_logger.info(f"Cleared {num_cleared} pending transactions")

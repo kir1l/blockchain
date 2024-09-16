@@ -133,6 +133,5 @@ class CreateWalletPage(Container):
         self.page.update()
 
     def go_to_wallet(self, e):
-       print('saving local data')
        self.wallet.save_wallet_local_data()
        self.page.go("/wallet")

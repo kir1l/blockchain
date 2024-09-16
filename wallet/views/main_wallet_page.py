@@ -145,6 +145,7 @@ class MainWalletPage(Container):
        )
 
    def update_dynamic_info(self, wallet: Wallet):
+       print("Updating dynamic info")
        self.wallet = wallet
        self.cached_balance = self.wallet.get_balance()
 
@@ -152,7 +153,8 @@ class MainWalletPage(Container):
        self.bitplace_balance.value = f"${self.cached_balance}"
        self.wallet_name.value =  f'Main Wallet ...{self.wallet.address[-5:]}'
        
-       self.page.update()
+       if self.page:
+            self.page.update()
 
    def update_balance(self):
        new_balance = self.wallet.get_balance()
@@ -160,7 +162,8 @@ class MainWalletPage(Container):
            self.cached_balance = new_balance
            self.total_balance.value = f"${new_balance}"
            self.bitplace_balance.value = f"${new_balance}"
-           self.page.update()
+           if self.page:
+               self.page.update()
 
    def logout(self, e):
        self.wallet.delete_wallet_local_data()

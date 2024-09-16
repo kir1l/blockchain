@@ -32,7 +32,6 @@ class BlockchainAPI:
         blockchain_logger.info(f"Created new wallet with address: {wallet_data['address']}")
         return jsonify(wallet_data), 201
 
-
     def get_balance(self):
         values = request.args
         if 'address' not in values:
@@ -83,16 +82,16 @@ class BlockchainAPI:
 
     def new_transaction(self):
         values = request.get_json()
-        required = ['sender', 'recipient', 'amount', 'signature']
+        required = ['sender', 'recipient', 'amount', 'signature', 'public_key']
         if not all(k in values for k in required):
             return 'Missing values', 400
 
-        if not self.blockchain.find_wallet(values['sender']):
-            return 'Sender not found', 400
+        if not self.blockchain.find_wallet(values['recipient']):  # Проверка существования получателя
+            return 'Recipient not found', 400
 
         signature = bytes.fromhex(values['signature'])
-        success = self.blockchain.create_transaction(values['sender'], values['recipient'], values['amount'], signature)
-
+        success = self.blockchain.create_transaction(values['sender'], values['recipient'], values['amount'], signature, values['public_key'])
+        print(success)
         if success:
             response = {'message': 'Transaction will be added to the next block'}
             blockchain_logger.info(f"New transaction added: {values['sender']} -> {values['recipient']} ({values['amount']})")

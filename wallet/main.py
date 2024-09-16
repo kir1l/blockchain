@@ -58,6 +58,7 @@ class MainApp:
 
         if self.page.route == "/wallet" or self.page.route == "/wallet/send":
            wallet = Wallet.load_wallet_local_data()
+           print(wallet)
            if wallet:
                  self.wallet_send_page.update_dynamic_info(wallet)
                  self.main_wallet_page.update_dynamic_info(wallet)
