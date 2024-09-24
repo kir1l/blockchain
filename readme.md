@@ -1,82 +1,82 @@
-# Bitplace Chain + Bitplace wallet
+# BitPlace Chain & BitPlace Wallet
 
-## Введение
+## Introduction
 
-Bitplace chain - это личный проект, в котором реализован самостоятельный блокчейн и криптовалютный кошелек в сети Bitplace chain. Блокчейн реализован на Python с использованием Flask для API, а кошелек представляет собой десктопное приложение на Flet. Для криптографии были выбраны mnemonic и cryptography.
+BitPlace Chain is a blockchain implementation with an integrated wallet system. This project demonstrates the fundamental concepts of blockchain technology and provides a simple wallet application for interacting with the blockchain.
+
+## Project Structure
+
+The project is organized into the following main components:
+
+- `blockchain.py`: Core blockchain implementation
+- `wallet/`: Wallet application
+- `managers/`: Additional management modules
+- `api.py`: API for interacting with the blockchain
+- `main.py`: Entry point for running the application
+- `logger.py`: Logging functionality
+
+## Blockchain (blockchain.py)
+
+The blockchain component implements the core functionality of the BitPlace Chain, including:
+
+- Block creation and validation
+- Chain management
+- Consensus mechanisms
+- Transaction handling
+
+## Wallet Application (wallet/)
+
+The wallet application provides user-friendly interfaces for:
+
+- Creating and managing wallets
+- Sending and receiving transactions
+- Viewing transaction history
+- Checking account balances
+
+## Component Interaction
+
+The various components of the BitPlace Chain project interact as follows:
+
+1. The blockchain core (`blockchain.py`) maintains the chain and processes transactions.
+2. The wallet application interacts with the blockchain through the API (`api.py`).
+3. Managers in the `managers/` directory handle specific aspects of the system, such as node communication or data persistence.
+4. The main application (`main.py`) initializes and coordinates the different components.
+
+## Run Blockchain
+
+1. Clone the repository:
+```bash
+git clone https://github.com/kir1l/blockchain.git
+```
+
+2. Install the required dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Run the main application:
+```bash
+python main.py
+```
+
+## Run Wallet
+
+1. Go to wallet folder:
+```bash
+cd wallet/
+```
+
+2. Run main wallet application:
+```bash
+python main.py
+```
+
+## Contributing
+
+Contributions to the BitPlace Chain project are welcome. Please feel free to submit issues, fork the repository and send pull requests!
+
+## License
+
+MIT
 
 
-## Структура проекта
-
-### Блокчейн (blockchain)
-
-1. **blockchain.py**:
-- Класс `Blockchain`: основная логика блокчейна
-  - Создание новых блоков и транзакций
-  - Проверка целостности цепочки
-  - Механизм консенсуса (resolve_conflicts)
-  - Создание и управление кошельками
-  - Proof of Work алгоритм
-- Класс `Block`: структура блока
-  - Хранение транзакций и информации о кошельках
-  - Методы для работы с балансами кошельков
-
-2. **api.py**:
-- Flask API для взаимодействия с блокчейном
-- Эндпоинты для:
-  - Создания новых кошельков
-  - Импорта существующих кошельков
-  - Майнинга новых блоков
-  - Получения полной цепочки блоков
-  - Создания новых транзакций
-  - Регистрации новых узлов
-  - Разрешения конфликтов между узлами
-
-3. **logger.py**:
-- Настройка логирования для блокчейна
-
-4. **main.py**:
-- Запуск Flask-приложения блокчейна
-
-### Приложение кошелька (wallet)
-
-1. **main.py**:
-- Класс `MainApp`: основное приложение кошелька
-  - Инициализация страниц и маршрутизация
-
-2. **wallet.py**:
-- Класс `Wallet`: логика работы с кошельком
-  - Создание нового кошелька
-  - Импорт существующего кошелька
-  - Взаимодействие с API блокчейна
-
-3. **create_page.py**:
-- Класс `CreateWalletPage`: интерфейс создания нового кошелька
-
-4. **import_page.py**:
-- Класс `ImportWalletPage`: интерфейс импорта существующего кошелька
-
-5. **main_wallet_page.py**:
-- Класс `MainWalletPage`: главный интерфейс кошелька
-  - Отображение баланса
-  - Кнопки для отправки и получения средств
-
-6. **open_page.py**:
-- Класс `OpenPage`: начальная страница приложения
-  - Выбор между созданием нового кошелька и импортом существующего
-
-## Взаимодействие компонентов
-
-1. Блокчейн работает как отдельное приложение, предоставляя API для взаимодействия.
-2. Приложение кошелька использует это API для выполнения операций (создание кошелька, проверка баланса, отправка транзакций).
-3. Пользователь взаимодействует с кошельком через графический интерфейс, который в свою очередь обращается к API блокчейна.
-
-Этот проект представляет собой полноценную систему блокчейна с пользовательским интерфейсом в виде кошелька, что позволяет наглядно демонстрировать работу блокчейн-технологии.
-
-Делаем блокчейн и кошелек для него
-Репозиторий: blockchain 
-Файлы блокчейна: blockchain.py api.py logger.py main.py 
-Файлы приложения кошелька: main.py wallet.py create_page.py import_page.py main_wallet_page.py open_page.py 
-
-Написать логику промисов для обновления баланса. Пинговать нельзя
-Дописать майнеров
-купить gpt 4o
